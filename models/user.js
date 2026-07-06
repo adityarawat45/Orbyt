@@ -19,9 +19,9 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   User.associate = function (models) {
-    User.hasMany(models.WebhookSubscription, {
+    User.hasMany(models.Orbyt, {
       foreignKey: 'userId',
-      as: 'subscriptions',
+      as: 'orbyts',
     });
   };
 

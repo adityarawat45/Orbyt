@@ -1,20 +1,20 @@
-const { WebhookSubscription } = require('../../models');
+const { Orbyt } = require('../../models');
 
 async function createSubscription(req, res) {
   try {
-    const { name, repository, githubWebhookSecret, discordWebhookUrl, discordUsername, discordAvatarUrl, active } = req.body || {};
+    const { name, repository, sourceWebhookSecret, destinationWebhookUrl, discordUsername, discordAvatarUrl, active } = req.body || {};
 
-    if (!name || !repository || !githubWebhookSecret || !discordWebhookUrl) {
-      return res.status(400).json({ ok: false, error: 'name, repository, githubWebhookSecret and discordWebhookUrl are required.' });
+    if (!name || !repository || !sourceWebhookSecret || !destinationWebhookUrl) {
+      return res.status(400).json({ ok: false, error: 'name, repository, sourceWebhookSecret and destinationWebhookUrl are required.' });
     }
 
-    const subscription = await WebhookSubscription.create({
+    const subscription = await Orbyt.create({
       name,
       repository,
-      githubWebhookSecret,
-      discordWebhookUrl,
-      discordUsername: discordUsername || 'Orbyt',
-      discordAvatarUrl,
+      sourceWebhookSecret,
+      destinationWebhookUrl,
+      destinationUsername: discordUsername || 'Orbyt',
+      destinationAvatarUrl: discordAvatarUrl,
       active: active !== false,
     });
 
@@ -27,7 +27,7 @@ async function createSubscription(req, res) {
 
 async function listSubscriptions(req, res) {
   try {
-    const subscriptions = await WebhookSubscription.findAll({ order: [['createdAt', 'DESC']] });
+    const subscriptions = await Orbyt.findAll({ order: [['createdAt', 'DESC']] });
     res.status(200).json({ ok: true, data: subscriptions });
   } catch (error) {
     console.error('Failed to list subscriptions.', error);

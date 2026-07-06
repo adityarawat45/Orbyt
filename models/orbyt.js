@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const WebhookSubscription = sequelize.define('WebhookSubscription', {
+  const Orbyt = sequelize.define('Orbyt', {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -8,27 +8,37 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    eventTypes: {
-      type: DataTypes.JSON,
-      allowNull: true,
-      defaultValue: ['issues'],
+    sourceProvider: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'github',
     },
-    githubWebhookSecret: {
+    sourceWebhookSecret: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    discordWebhookUrl: {
+    destinationProvider: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'discord',
+    },
+    destinationWebhookUrl: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    discordUsername: {
+    destinationUsername: {
       type: DataTypes.STRING,
       allowNull: true,
       defaultValue: 'Orbyt',
     },
-    discordAvatarUrl: {
+    destinationAvatarUrl: {
       type: DataTypes.STRING,
       allowNull: true,
+    },
+    eventTypes: {
+      type: DataTypes.JSON,
+      allowNull: true,
+      defaultValue: ['issues'],
     },
     userId: {
       type: DataTypes.INTEGER,
@@ -40,16 +50,20 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: true,
     },
   }, {
-    tableName: 'webhooksubscriptions',
+    tableName: 'orbyts',
     freezeTableName: true,
   });
 
-  WebhookSubscription.associate = function (models) {
-    WebhookSubscription.belongsTo(models.User, {
+  Orbyt.associate = function (models) {
+    Orbyt.belongsTo(models.User, {
       foreignKey: 'userId',
       as: 'user',
     });
+    Orbyt.hasMany(models.OrbytEvent, {
+      foreignKey: 'orbytId',
+      as: 'events',
+    });
   };
 
-  return WebhookSubscription;
+  return Orbyt;
 };

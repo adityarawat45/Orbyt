@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const { WebhookSubscription } = require('../../models');
+const { Orbyt } = require('../../models');
 const { generateNotificationMessage } = require('../services/aiService');
 const { sendDiscordNotification } = require('../services/discordService');
 const { githubWebhookSecret } = require('../config/env');
@@ -36,11 +36,11 @@ async function handleGitHubWebhook(req, res) {
 
     const payload = req.body || {};
     const repository = getRepositoryName(payload);
-    const subscription = await WebhookSubscription.findOne({
+    const subscription = await Orbyt.findOne({
       where: { repository, active: true },
     });
 
-    const secretToUse = subscription?.githubWebhookSecret || githubWebhookSecret;
+    const secretToUse = subscription?.sourceWebhookSecret || githubWebhookSecret;
     const signature = req.get('x-hub-signature-256') || req.get('x-hub-signature') || '';
 
     if (!verifySignature(rawBody, signature, secretToUse)) {
@@ -64,9 +64,9 @@ async function handleGitHubWebhook(req, res) {
     const message = await generateNotificationMessage(eventData);
 
     await sendDiscordNotification(message, {
-      username: subscription?.discordUsername || 'Orbyt',
-      avatarUrl: subscription?.discordAvatarUrl || null,
-      webhookUrl: subscription?.discordWebhookUrl || undefined,
+      username: subscription?.destinationUsername || 'Orbyt',
+      avatarUrl: subscription?.destinationAvatarUrl || null,
+      webhookUrl: subscription?.destinationWebhookUrl || undefined,
     });
 
     return res.status(200).json({ ok: true, message: 'Webhook processed successfully.' });
