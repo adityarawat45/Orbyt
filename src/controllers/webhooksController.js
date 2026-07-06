@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const { WebhookSubscription } = require('../models');
+const { WebhookSubscription } = require('../../models');
 const { generateNotificationMessage } = require('../services/aiService');
 const { sendDiscordNotification } = require('../services/discordService');
 const { githubWebhookSecret } = require('../config/env');

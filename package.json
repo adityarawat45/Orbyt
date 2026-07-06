@@ -18,6 +18,7 @@
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "migrate": "node src/db/migrate.js",
+    "migrate:undo": "sequelize-cli db:migrate:undo",
     "test": "node --test"
   },
   "dependencies": {
@@ -27,6 +28,7 @@
     "express": "^4.21.2",
     "mysql2": "^3.2.5",
     "sequelize": "^6.10.0",
+    "sequelize-cli": "^6.6.5",
     "sqlite3": "^5.0.0"
   }
 }

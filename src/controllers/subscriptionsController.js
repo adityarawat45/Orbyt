@@ -1,4 +1,4 @@
-const { WebhookSubscription } = require('../models');
+const { WebhookSubscription } = require('../../models');
 
 async function createSubscription(req, res) {
   try {

@@ -1,5 +1,5 @@
 const express = require('express');
-const { sequelize } = require('./models');
+const { sequelize } = require('../models');
 const webhooksRoutes = require('./routes/webhooks');
 
 const app = express();
@@ -17,7 +17,7 @@ app.get('/health', (req, res) => {
 app.use('/api', webhooksRoutes);
 
 async function initializeApp() {
-  await sequelize.sync({ alter: process.env.NODE_ENV !== 'production' });
+  await sequelize.authenticate();
   return app;
 }
 

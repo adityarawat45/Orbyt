@@ -1,16 +1,16 @@
-const sequelize = require('../config/database');
+const { execSync } = require('child_process');
+const path = require('path');
 
-async function runMigrations() {
+function runMigrations() {
   try {
-    await sequelize.authenticate();
-    console.log('Database connection established.');
-    await sequelize.sync({ alter: process.env.NODE_ENV !== 'production' });
-    console.log('Database schema synchronized.');
+    const projectRoot = path.resolve(__dirname, '../..');
+    execSync('npx sequelize-cli db:migrate', {
+      cwd: projectRoot,
+      stdio: 'inherit',
+    });
   } catch (error) {
     console.error('Database migration failed.', error);
     process.exitCode = 1;
-  } finally {
-    await sequelize.close();
   }
 }
 
