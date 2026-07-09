@@ -8,5 +8,6 @@ test('models expose user, orbyt, and orbyt event models with the expected associ
   assert.ok(db.Orbyt, 'Expected Orbyt model to be registered');
   assert.ok(db.OrbytEvent, 'Expected OrbytEvent model to be registered');
   assert.ok(db.Orbyt.rawAttributes.userId, 'Expected Orbyt to have a userId field');
+  assert.ok(db.Orbyt.rawAttributes.webhookToken, 'Expected Orbyt to have a webhookToken field');
   assert.ok(db.OrbytEvent.rawAttributes.orbytId, 'Expected OrbytEvent to have an orbytId field');
 });

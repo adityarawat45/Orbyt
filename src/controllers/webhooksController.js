@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const { Orbyt } = require('../../models');
+const { Orbyt, OrbytEvent } = require('../../models');
 const { generateNotificationMessage } = require('../services/aiService');
 const { sendDiscordNotification } = require('../services/discordService');
 const { githubWebhookSecret } = require('../config/env');
@@ -27,20 +27,37 @@ function verifySignature(payload, signature, secret) {
 
 async function handleGitHubWebhook(req, res) {
   try {
+    const { webhookToken } = req.params;
     const rawBody = req.rawBody ? req.rawBody.toString('utf8') : JSON.stringify(req.body || {});
     const eventName = req.get('x-github-event') || '';
+
+    if (!webhookToken) {
+      return res.status(400).json({ ok: false, error: 'Webhook token is required.' });
+    }
 
     if (eventName !== 'issues') {
       return res.status(202).json({ ok: true, ignored: true, reason: 'Only issue events are processed.' });
     }
 
-    const payload = req.body || {};
-    const repository = getRepositoryName(payload);
     const subscription = await Orbyt.findOne({
-      where: { repository, active: true },
+      where: { webhookToken, active: true },
     });
 
-    const secretToUse = subscription?.sourceWebhookSecret || githubWebhookSecret;
+    if (!subscription) {
+      return res.status(404).json({ ok: false, error: 'Orbyt not found or inactive.' });
+    }
+
+    const payload = req.body || {};
+    const repository = getRepositoryName(payload);
+
+    if (subscription.repository !== repository) {
+      return res.status(400).json({
+        ok: false,
+        error: `Repository mismatch. This Orbyt is configured for ${subscription.repository}.`,
+      });
+    }
+
+    const secretToUse = subscription.sourceWebhookSecret || githubWebhookSecret;
     const signature = req.get('x-hub-signature-256') || req.get('x-hub-signature') || '';
 
     if (!verifySignature(rawBody, signature, secretToUse)) {
@@ -64,9 +81,16 @@ async function handleGitHubWebhook(req, res) {
     const message = await generateNotificationMessage(eventData);
 
     await sendDiscordNotification(message, {
-      username: subscription?.destinationUsername || 'Orbyt',
-      avatarUrl: subscription?.destinationAvatarUrl || null,
-      webhookUrl: subscription?.destinationWebhookUrl || undefined,
+      username: subscription.destinationUsername || 'Orbyt',
+      avatarUrl: subscription.destinationAvatarUrl || null,
+      webhookUrl: subscription.destinationWebhookUrl,
+    });
+
+    await OrbytEvent.create({
+      orbytId: subscription.id,
+      message,
+      eventType: eventName,
+      sentAt: new Date(),
     });
 
     return res.status(200).json({ ok: true, message: 'Webhook processed successfully.' });
@@ -78,4 +102,6 @@ async function handleGitHubWebhook(req, res) {
 
 module.exports = {
   handleGitHubWebhook,
+  getRepositoryName,
+  verifySignature,
 };

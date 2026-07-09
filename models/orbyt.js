@@ -44,6 +44,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: true,
     },
+    webhookToken: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
     active: {
       type: DataTypes.BOOLEAN,
       allowNull: false,

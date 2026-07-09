@@ -16,4 +16,7 @@ module.exports = {
     database: process.env.DB_NAME || 'orbyt',
     storage: process.env.DB_STORAGE || 'orbyt.sqlite',
   },
+  clerkSecretKey: process.env.CLERK_SECRET_KEY || '',
+  clerkPublishableKey: process.env.CLERK_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || '',
+  publicBaseUrl: (process.env.PUBLIC_BASE_URL || '').replace(/\/$/, ''),
 };
